@@ -16,8 +16,11 @@
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "firebase": "^10.6.0",
+    "form-data": "^4.0.0",
     "jsonwebtoken": "^9.0.2",
+    "mailgun.js": "^10.2.1",
     "mongodb": "^6.2.0",
+    "nodemailer": "^6.9.13",
     "react-simple-captcha": "^9.3.0"
   }
 }

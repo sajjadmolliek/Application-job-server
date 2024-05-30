@@ -1,8 +1,10 @@
 const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
+const path = require("path")
 const app = express();
-const port = process.env.PORT || 5007;
+const sendMail = require('../server-job/Controllers/sendMail');
+const port = process.env.PORT || 5015;
 
 //  <----------Middle ware --------->
 app.use(
@@ -13,11 +15,10 @@ app.use(
 );
 app.use(express.json());
 
-
 //  <-------------------------------MongoDB Server --------------------------->
 
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-const uri = `mongodb+srv://${process.env.userNameBistro}:${process.env.userPassBistro}@cluster0.rsgizg7.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.userNameBistro}:${process.env.userPassBistro}@cluster0.iatiqfv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -33,8 +34,9 @@ async function run() {
     await client.connect();
     // <--------------------- Collection in database -------------->
 
-    const usersApplicationData = client.db("usersApplicationDB").collection("Application");
-
+    const usersApplicationData = client
+      .db("usersApplicationDB")
+      .collection("Application");
 
     //<------------------Verify Admin----------------->
 
@@ -48,10 +50,6 @@ async function run() {
     //   next();
     // };
 
-
-
-
-
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
@@ -60,10 +58,13 @@ async function run() {
 }
 run().catch(console.dir);
 
+app.get("/mail", sendMail);
+
 app.get("/", (req, res) => {
+
   res.send("I am The API for Job Task!");
 });
 
 app.listen(port, () => {
-  console.log(`Bistro Boss sitting on port ${port}`);
+  console.log(`task is running on port ${port}`);
 });
