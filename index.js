@@ -3,16 +3,19 @@ require("dotenv").config();
 const cors = require("cors");
 const path = require("path");
 const app = express();
+const cookieParser = require("cookie-parser");
 const sendMail = require("../server-job/Controllers/sendMail");
+const rejectMail = require("../server-job/Controllers/rejectMail");
 const port = process.env.PORT || 5015;
 
 //  <----------Middle ware --------->
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173","https://scholarshipapplicationform.surge.sh"],
     credentials: true,
   })
 );
+app.use(cookieParser());
 app.use(express.json());
 
 //  <-------------------------------MongoDB Server --------------------------->
@@ -69,8 +72,40 @@ async function run() {
       const result = await usersApplicationData.insertOne(application);
       res.send(result);
     });
+    // Delete Specific Application
+    app.delete('/deleteApplication/:id', async (req, res) => {
+      const id = req.params.id;
+     
+      try {
+        const result = await usersApplicationData.deleteOne({ _id: new ObjectId(id) });
+        res.send(result);
+      } catch (error) {
+        res.status(500).json({ message: 'Internal server error', error });
+      }
+    });
+     // Route to get a specific application by ID
+     app.get('/application/:id', async (req, res) => {
+      const id = req.params.id;
+      try {
+        const application = await usersApplicationData.findOne({ _id: new ObjectId(id) });
+        if (application) {
+          res.status(200).json(application);
+        } else {
+          res.status(404).json({ message: 'Application not found' });
+        }
+      } catch (error) {
+        res.status(500).json({ message: 'Internal server error', error });
+      }
+    });
+
+    app.get("/allApplication", async (req, res) => {
+      const result = await usersApplicationData.find().toArray();
+      res.send(result);
+    });
     // Sending Application Confirm Mail
     app.get("/application", sendMail);
+    // Sending Application Reject Mail
+    app.get("/applicationReject", rejectMail);
 
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
