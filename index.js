@@ -1,9 +1,9 @@
 const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
-const path = require("path")
+const path = require("path");
 const app = express();
-const sendMail = require('../server-job/Controllers/sendMail');
+const sendMail = require("../server-job/Controllers/sendMail");
 const port = process.env.PORT || 5015;
 
 //  <----------Middle ware --------->
@@ -37,18 +37,40 @@ async function run() {
     const usersApplicationData = client
       .db("usersApplicationDB")
       .collection("Application");
+    const adminData = client.db("usersApplicationDB").collection("AdminData");
 
     //<------------------Verify Admin----------------->
 
-    // const verifyAdmin = async (req, res, next) => {
-    //   const email = req.user.sendingUser;
-    //   const query = { email: email };
-    //   const AdminCK = await usersData.findOne(query);
-    //   if (AdminCK?.role !== "Admin") {
-    //     res.status(403).send({ message: "Forbidden Access" });
-    //   }
-    //   next();
-    // };
+    app.post("/verifyAdmin", async (req, res) => {
+      const userName = req.body.userName;
+      const password = req.body.password;
+
+      // Construct the query
+      const query = { userName: userName, password: password };
+
+      try {
+        // Query on the database
+        const user = await adminData.findOne(query);
+
+        if (user) {
+          res.send(true);
+        } else {
+          res.send(false);
+        }
+      } catch (error) {
+        console.error("Error verifying admin:", error);
+        res.status(500).json({ message: "Internal server error", error });
+      }
+    });
+
+    //  Application post method
+    app.post("/application", async (req, res) => {
+      const application = req.body;
+      const result = await usersApplicationData.insertOne(application);
+      res.send(result);
+    });
+    // Sending Application Confirm Mail
+    app.get("/application", sendMail);
 
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
@@ -58,10 +80,7 @@ async function run() {
 }
 run().catch(console.dir);
 
-app.get("/mail", sendMail);
-
 app.get("/", (req, res) => {
-
   res.send("I am The API for Job Task!");
 });
 
