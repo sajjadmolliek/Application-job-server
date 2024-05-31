@@ -4,8 +4,8 @@ const cors = require("cors");
 const path = require("path");
 const app = express();
 const cookieParser = require("cookie-parser");
-const sendMail = require("../server-job/Controllers/sendMail");
-const rejectMail = require("../server-job/Controllers/rejectMail");
+const sendMail = require("./sendMail");
+const rejectMail = require("./rejectMail");
 const port = process.env.PORT || 5015;
 
 //  <----------Middle ware --------->
@@ -75,7 +75,6 @@ async function run() {
     // Delete Specific Application
     app.delete('/deleteApplication/:id', async (req, res) => {
       const id = req.params.id;
-     
       try {
         const result = await usersApplicationData.deleteOne({ _id: new ObjectId(id) });
         res.send(result);
