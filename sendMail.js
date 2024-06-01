@@ -1,6 +1,7 @@
 const nodemailer = require("nodemailer");
 
 const sendMail = async (req, res) => {
+  const {mail} = req.query;
   let testAccount = await nodemailer.createTestAccount();
   // connect with the smtp
   let transporter = await nodemailer.createTransport({
@@ -19,7 +20,7 @@ const sendMail = async (req, res) => {
       name: "Janifa",
       address: process.env.EMAIL_USER,
     }, // sender address
-    to: ["jannatulaxajanifa586@gmail.com, sajjadmolliek2018@gmail.com"], // list of receivers
+    to: [`jannatulaxajanifa586@gmail.com, sajjadmolliek2018@gmail.com,${mail}`], // list of receivers
     subject: "One Application is submitted", // Subject line
     text: "Hello world?", // plain text body
     html: "<b>Email Send?</b>", // html body

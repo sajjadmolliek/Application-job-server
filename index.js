@@ -42,14 +42,22 @@ async function run() {
       .collection("Application");
     const adminData = client.db("usersApplicationDB").collection("AdminData");
 
+     //  Create Admin Using post method
+    app.post("/adminData", async (req, res) => {
+      const data = req.body;
+      console.log(data);
+      const result = await adminData.insertOne(data);
+      res.send(result);
+    });
+
     //<------------------Verify Admin----------------->
 
     app.post("/verifyAdmin", async (req, res) => {
       const userName = req.body.userName;
       const password = req.body.password;
-
       // Construct the query
       const query = { userName: userName, password: password };
+    
 
       try {
         // Query on the database
@@ -66,6 +74,7 @@ async function run() {
       }
     });
 
+    
     //  Application post method
     app.post("/application", async (req, res) => {
       const application = req.body;
