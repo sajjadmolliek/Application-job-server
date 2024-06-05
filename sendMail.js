@@ -20,10 +20,10 @@ const sendMail = async (req, res) => {
       name: "Janifa",
       address: process.env.EMAIL_USER,
     }, // sender address
-    to: [`jannatulaxajanifa586@gmail.com, sajjadmolliek2018@gmail.com,${mail}`], // list of receivers
-    subject: "One Application is submitted", // Subject line
-    text: "Hello world?", // plain text body
-    html: "<b>Email Send?</b>", // html body
+    to: [`jannatulaxajanifa586@gmail.com, sajjadmolliek@gmail.com,${mail}`], // list of receivers
+    subject: "Application is submitted", // Subject line
+    
+    html: "<b>Successfully SUbmitted Application</b>", // html body
   });
 
   res.json(info);

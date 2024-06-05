@@ -1,11 +1,20 @@
+const { ObjectId } = require("mongodb");
 const nodemailer = require("nodemailer");
 
-const rejectMail = async (req, res) => {
-  try {
+const AcceptMail = async (req, res) => {
+    
+    try {
+      const id = req.params.id;
+      
     // Ensure environment variables are set
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
       throw new Error("Email user or password not set in environment variables");
     }
+// console.log(id);
+const query = { _id: new ObjectId(id) };
+const result = await usersApplicationData.findOne(query);
+    // const result = await usersApplicationData.findOne({ _id: new ObjectId(id) });
+        console.log(result);
 
     // Create transporter object using SMTP
     let transporter = nodemailer.createTransport({
@@ -25,10 +34,10 @@ const rejectMail = async (req, res) => {
         name: "Janifa",
         address: process.env.EMAIL_USER,
       },
-      to: ["jannatulaxajanifa586@gmail.com", "sajjadmolliek@gmail.com"],
-      subject: "Reject Application",
+      to: ["jannatulaxajanifa586@gmail.com", "sajjadmolliek2018@gmail.com"],
+      subject: "Accept Application",
       text: "Reject?",
-      html: "<b>Sorry to say that, Your Application has been Rejected by Admin</b>",
+      html: "<b>The Application is Accept by Admin</b>",
     });
 
     console.log("Message sent: %s", info.messageId);
@@ -39,4 +48,4 @@ const rejectMail = async (req, res) => {
   }
 };
 
-module.exports = rejectMail;
+module.exports = AcceptMail;

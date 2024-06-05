@@ -3,8 +3,10 @@ require("dotenv").config();
 const cors = require("cors");
 const path = require("path");
 const app = express();
+const nodemailer = require("nodemailer");
 const cookieParser = require("cookie-parser");
 const sendMail = require("./sendMail");
+const AcceptMail = require("./AcceptMail");
 const rejectMail = require("./rejectMail");
 const port = process.env.PORT || 5015;
 
@@ -81,6 +83,12 @@ async function run() {
       const result = await usersApplicationData.insertOne(application);
       res.send(result);
     });
+    // //  Application Accept API
+    // app.patch("/applicationAccept", async (req, res) => {
+    //   const application = req.body;
+    //   const result = await usersApplicationData.insertOne(application);
+    //   res.send(result);
+    // });
     // Delete Specific Application
     app.delete('/deleteApplication/:id', async (req, res) => {
       const id = req.params.id;
@@ -112,8 +120,93 @@ async function run() {
     });
     // Sending Application Confirm Mail
     app.get("/application", sendMail);
+    // Sending Application Accept Mail
+    app.get("/applicationAccept/:id", async(req,res)=>{
+      try {
+        const id = req.params.id;
+        
+      // Ensure environment variables are set
+      if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        throw new Error("Email user or password not set in environment variables");
+      }
+  
+      // Create transporter object using SMTP
+      let transporter = nodemailer.createTransport({
+        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+      // Find Mail Sender
+  const query = { _id: new ObjectId(id) };
+  const result = await usersApplicationData.findOne(query);
+  
+      // Send email
+      let info = await transporter.sendMail({
+        from: {
+          name: "Janifa",
+          address: process.env.EMAIL_USER,
+        },
+        to: ["jannatulaxajanifa586@gmail.com", result.emailId],
+        subject: "Accept Application",
+        text: "Reject?",
+        html: "<b>The Application is Accept by Admin</b>",
+      });
+    
+      res.status(200).json(info);
+    } catch (error) {
+      console.error("Error sending email:", error);
+      res.status(500).json({ message: "Internal Server Error", error: error.message });
+    }
+    });
     // Sending Application Reject Mail
-    app.get("/applicationReject", rejectMail);
+    app.get("/applicationReject/:id", async(req,res)=>{
+      try {
+        const id = req.params.id;
+        // Ensure environment variables are set
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+          throw new Error("Email user or password not set in environment variables");
+        }
+
+    
+        // Create transporter object using SMTP
+        let transporter = nodemailer.createTransport({
+          service: "gmail",
+          host: "smtp.gmail.com",
+          port: 587,
+          secure: false,
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+          },
+        });
+        // Find Mail Sender
+        const query = { _id: new ObjectId(id) };
+  const result = await usersApplicationData.findOne(query);
+    
+        // Send email
+        let info = await transporter.sendMail({
+          from: {
+            name: "Janifa",
+            address: process.env.EMAIL_USER,
+          },
+          to: ["jannatulaxajanifa586@gmail.com", result.emailId],
+          subject: "Reject Application",
+          text: "Reject?",
+          html: "<b>Sorry to say that, Your Application has been Rejected by Admin</b>",
+        });
+    
+        console.log("Message sent: %s", info.messageId);
+        res.status(200).json(info);
+      } catch (error) {
+        console.error("Error sending email:", error);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
+      }
+    });
 
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
